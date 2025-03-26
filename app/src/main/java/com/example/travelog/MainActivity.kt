@@ -38,14 +38,18 @@ class MainActivity : AppCompatActivity() {
 
         binding.bottomNavigation.setupWithNavController(navController)
 
-
+        // Hide bottom navigation on authentication screens
         navController.addOnDestinationChangedListener { _, destination, _ ->
             val hideBottomNav = when (destination.id) {
                 R.id.loginFragment, R.id.registerFragment -> true
                 else -> false
             }
 
-
+            if (hideBottomNav) {
+                binding.bottomNavigation.visibility = android.view.View.GONE
+            } else {
+                binding.bottomNavigation.visibility = android.view.View.VISIBLE
+            }
         }
     }
 }

@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Travelog</string>
+    <string name="location_permission_required">Location permission is required for this feature</string>
+    <string name="get_current_location">Get Current Location</string>
+    <string name="google_maps_api_key">AIzaSyD9gxo3yP8duvRHfxGF2dw6GAUsPIqNoVE</string>
+    <string name="explore_map">Explore Map</string>
 </resources>

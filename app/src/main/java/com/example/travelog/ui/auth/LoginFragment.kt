@@ -63,6 +63,8 @@ class LoginFragment : Fragment() {
                             "Login successful!",
                             Toast.LENGTH_SHORT
                         ).show()
+                        findNavController().navigate(R.id.action_loginFragment_to_feedFragment)
+
 
 
                     }
