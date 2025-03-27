@@ -71,7 +71,6 @@ class CreatePostFragment : Fragment() {
         )[PostViewModel::class.java]
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-        // Check if user is signed in
         checkUserAuthentication()
 
         setupClickListeners()

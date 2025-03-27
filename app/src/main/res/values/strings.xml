@@ -4,4 +4,11 @@
     <string name="get_current_location">Get Current Location</string>
     <string name="google_maps_api_key">AIzaSyD9gxo3yP8duvRHfxGF2dw6GAUsPIqNoVE</string>
     <string name="explore_map">Explore Map</string>
+
+    <string name="profile_image">Profile Image</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="logout">Logout</string>
+    <string name="my_posts">My Posts</string>
+    <string name="no_posts_yet">No posts yet</string>
+
 </resources>

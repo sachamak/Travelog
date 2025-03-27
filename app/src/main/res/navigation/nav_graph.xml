@@ -70,6 +70,22 @@
     </fragment>
 
     <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.travelog.ui.profile.ProfileFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile">
+        <action
+            android:id="@+id/action_profileFragment_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.example.travelog.ui.profile.EditProfileFragment"
+        android:label="Edit Profile"
+        tools:layout="@layout/fragment_edit_profile" />
+
+    <fragment
         android:id="@+id/mapFragment"
         android:name="com.example.travelog.ui.map.MapFragment"
         android:label="Explore Map"
@@ -90,7 +106,5 @@
         app:destination="@id/feedFragment"
         app:popUpTo="@id/feedFragment"
         app:popUpToInclusive="false" />
-
-
 
 </navigation>
