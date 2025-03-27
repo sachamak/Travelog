@@ -79,7 +79,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
                 if (document.exists()) {
                     try {
-                        // Récupérer les champs du document avec les noms corrects de Firestore
+
                         val docPostId = document.getString("postId") ?: ""
                         val title = document.getString("title") ?: ""
                         val description = document.getString("description") ?: ""
@@ -98,7 +98,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                             imageUri = imageUri,
                             userId = userId,
                             username = document.getString("username") ?: "Anonymous",
-                            timestamp = createdAt, // Utiliser createdAt comme timestamp pour la cohérence
+                            timestamp = createdAt,
                             latitude = latitude,
                             longitude = longitude
                         )
@@ -125,7 +125,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val currentPost = _currentPost.value ?: return@launch
 
-                var base64Image = currentPost.imageUri // Conserver l'image existante par défaut
+                var base64Image = currentPost.imageUri
 
                 if (imageUri != null) {
                     try {

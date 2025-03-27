@@ -22,6 +22,7 @@ class FirebaseRepository {
     private val firestore = FirebaseFirestore.getInstance()
     private val storage = FirebaseStorage.getInstance()
 
+
     suspend fun registerUser(email: String, password: String): Result<String> {
         return try {
             val result = auth.createUserWithEmailAndPassword(email, password).await()
@@ -48,6 +49,7 @@ class FirebaseRepository {
         auth.signOut()
     }
 
+
     suspend fun createUserProfile(user: User): Result<Unit> {
         return try {
             firestore.collection("users")
@@ -57,6 +59,33 @@ class FirebaseRepository {
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    suspend fun getUserProfile(userId: String): Result<User> {
+        return try {
+            val document = firestore.collection("users")
+                .document(userId)
+                .get()
+                .await()
+
+            if (document.exists()) {
+                Result.success(document.toObject(User::class.java) ?: User())
+            } else {
+                Result.failure(Exception("User not found"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    fun encodeImageToBase64(context: Context, imageUri: Uri): String? {
+        try {
+            val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, imageUri)
+            val compressedBitmap = compressImage(bitmap)
+            return bitmapToBase64(compressedBitmap)
+        } catch (e: Exception) {
+            return null
         }
     }
 
@@ -81,6 +110,11 @@ class FirebaseRepository {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 85, byteArrayOutputStream)
         val byteArray = byteArrayOutputStream.toByteArray()
         return Base64.encodeToString(byteArray, Base64.DEFAULT)
+    }
+
+    fun updateUserProfile(updates: HashMap<String, Any>): Task<Void> {
+        val userId = auth.currentUser?.uid ?: throw IllegalStateException("User empty")
+        return firestore.collection("users").document(userId).update(updates)
     }
 
     suspend fun createPost(post: TravelPost): Result<String> {
@@ -108,7 +142,7 @@ class FirebaseRepository {
                 .limit(20) // Limiter le nombre de documents récupérés
                 .addSnapshotListener { snapshot, exception ->
                     if (exception != null) {
-                        android.util.Log.e("FirebaseRepository", "Erreur dans getAllTravelPosts: ${exception.message}")
+                        android.util.Log.e("FirebaseRepository", "Error getAllTravelPosts: ${exception.message}")
                         postsLiveData.value = listOf()
                         return@addSnapshotListener
                     }
@@ -130,20 +164,71 @@ class FirebaseRepository {
                                     updatedAt = doc.getLong("updatedAt") ?: System.currentTimeMillis()
                                 )
                             } catch (e: Exception) {
-                                android.util.Log.e("FirebaseRepository", "Erreur de conversion d'un document: ${e.message}")
+                                android.util.Log.e("FirebaseRepository", "Error: ${e.message}")
                                 null
                             }
                         } ?: listOf()
 
                         postsLiveData.value = posts
                     } catch (e: Exception) {
-                        android.util.Log.e("FirebaseRepository", "Exception dans getAllTravelPosts: ${e.message}")
+                        android.util.Log.e("FirebaseRepository", "Exception getAllTravelPosts: ${e.message}")
                         postsLiveData.value = listOf()
                     }
                 }
         } catch (e: Exception) {
-            android.util.Log.e("FirebaseRepository", "Exception générale dans getAllTravelPosts: ${e.message}")
+            android.util.Log.e("FirebaseRepository", "Exception  getAllTravelPosts: ${e.message}")
             postsLiveData.value = listOf()
+        }
+
+        return postsLiveData
+    }
+
+    fun getUserTravelPosts(userId: String): LiveData<List<TravelPost>> {
+        val postsLiveData = MutableLiveData<List<TravelPost>>()
+        android.util.Log.d("FirebaseRepository", "Start: $userId")
+
+        try {
+            firestore.collection("posts")
+                .whereEqualTo("userId", userId)
+                .get()
+                .addOnSuccessListener { documents ->
+                    try {
+                        val posts = documents.documents.mapNotNull { doc ->
+                            try {
+                                TravelPost(
+                                    postId = doc.getString("postId") ?: "",
+                                    userId = doc.getString("userId") ?: "",
+                                    username = doc.getString("username") ?: "",
+                                    title = doc.getString("title") ?: "",
+                                    description = doc.getString("description") ?: "",
+                                    location = doc.getString("location") ?: "",
+                                    latitude = doc.getDouble("latitude") ?: 0.0,
+                                    longitude = doc.getDouble("longitude") ?: 0.0,
+                                    imageUri = doc.getString("imageUri") ?: "",
+                                    createdAt = doc.getLong("createdAt") ?: System.currentTimeMillis(),
+                                    updatedAt = doc.getLong("updatedAt") ?: System.currentTimeMillis()
+                                )
+                            } catch (e: Exception) {
+                                android.util.Log.e("FirebaseRepository", "Error: ${e.message}")
+                                null
+                            }
+                        }
+
+                        val sortedPosts = posts.sortedByDescending { it.createdAt }
+                        android.util.Log.d("FirebaseRepository", "Loading post: $userId: ${sortedPosts.size}")
+                        postsLiveData.postValue(sortedPosts)
+                    } catch (e: Exception) {
+                        android.util.Log.e("FirebaseRepository", "Exception: ${e.message}")
+                        postsLiveData.postValue(listOf())
+                    }
+                }
+                .addOnFailureListener { e ->
+                    android.util.Log.e("FirebaseRepository", "Errore: ${e.message}")
+                    postsLiveData.postValue(listOf())
+                }
+        } catch (e: Exception) {
+            android.util.Log.e("FirebaseRepository", "Exception : ${e.message}")
+            postsLiveData.postValue(listOf())
         }
 
         return postsLiveData
