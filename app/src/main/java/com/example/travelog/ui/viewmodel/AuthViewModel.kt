@@ -1,5 +1,6 @@
-package com.example.travelog.ui.auth
+package com.example.travelog.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,9 +12,14 @@ import kotlinx.coroutines.launch
 class AuthViewModel : ViewModel() {
 
     private val repository = FirebaseRepository()
+    private val TAG = "AuthViewModel"
 
     private val _authState = MutableLiveData<AuthState>()
     val authState: LiveData<AuthState> = _authState
+
+    init {
+        _authState.value = AuthState.Idle
+    }
 
     fun login(email: String, password: String) {
         viewModelScope.launch {
@@ -23,13 +29,16 @@ class AuthViewModel : ViewModel() {
                 result.fold(
                     onSuccess = { userId ->
                         _authState.value = AuthState.Success(userId)
+                        Log.d(TAG, "Login successful for user: $userId")
                     },
                     onFailure = { e ->
                         _authState.value = AuthState.Error(e.message ?: "Authentication failed")
+                        Log.e(TAG, "Login failed: ${e.message}")
                     }
                 )
             } catch (e: Exception) {
                 _authState.value = AuthState.Error(e.message ?: "Authentication failed")
+                Log.e(TAG, "Login exception: ${e.message}")
             }
         }
     }
@@ -51,29 +60,41 @@ class AuthViewModel : ViewModel() {
                         profileResult.fold(
                             onSuccess = {
                                 _authState.value = AuthState.Success(userId)
+                                Log.d(TAG, "Registration successful for user: $userId")
                             },
                             onFailure = { e ->
                                 _authState.value = AuthState.Error(e.message ?: "Failed to create profile")
+                                Log.e(TAG, "Profile creation failed: ${e.message}")
                             }
                         )
                     },
                     onFailure = { e ->
                         _authState.value = AuthState.Error(e.message ?: "Registration failed")
+                        Log.e(TAG, "Registration failed: ${e.message}")
                     }
                 )
             } catch (e: Exception) {
                 _authState.value = AuthState.Error(e.message ?: "Registration failed")
+                Log.e(TAG, "Registration exception: ${e.message}")
             }
         }
     }
 
     fun logout() {
         try {
+            Log.d(TAG, "Logging out user")
             repository.logoutUser()
             _authState.value = AuthState.Idle
+            Log.d(TAG, "User logged out, auth state set to Idle")
         } catch (e: Exception) {
             _authState.value = AuthState.Error(e.message ?: "Logout failed")
+            Log.e(TAG, "Logout failed: ${e.message}")
         }
+    }
+
+    fun resetAuthState() {
+        Log.d(TAG, "Resetting auth state to Idle")
+        _authState.value = AuthState.Idle
     }
 
     sealed class AuthState {

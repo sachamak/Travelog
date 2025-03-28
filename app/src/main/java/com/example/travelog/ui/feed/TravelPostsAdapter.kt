@@ -59,7 +59,6 @@ class TravelPostsAdapter(private val onPostClick: (TravelPost) -> Unit) :
                         .into(binding.postImage)
                 } else {
                     try {
-                        // C'est probablement une chaîne Base64
                         val imageBytes = Base64.decode(post.imageUri, Base64.DEFAULT)
                         val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
                         binding.postImage.setImageBitmap(bitmap)

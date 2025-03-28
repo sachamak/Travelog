@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/white">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -21,18 +22,59 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <!-- Post Title with Label -->
+        <TextView
+            android:id="@+id/postTitleLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Post Title"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#555555"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/backButton" />
+
         <TextView
             android:id="@+id/postTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="4dp"
             android:textSize="24sp"
             android:textStyle="bold"
+            android:textColor="#000000"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/backButton"
+            app:layout_constraintTop_toBottomOf="@id/postTitleLabel"
             tools:text="Amazing Travel Experience" />
 
+        <!-- Author Info -->
+        <TextView
+            android:id="@+id/authorLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Posted by:"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#555555"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/postTitle" />
+
+        <TextView
+            android:id="@+id/authorUsername"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#1976D2"
+            app:layout_constraintStart_toEndOf="@id/authorLabel"
+            app:layout_constraintTop_toTopOf="@id/authorLabel"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="traveler123" />
+
+        <!-- Post Image -->
         <ImageView
             android:id="@+id/postImage"
             android:layout_width="0dp"
@@ -42,60 +84,147 @@
             android:scaleType="centerCrop"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/postTitle"
+            app:layout_constraintTop_toBottomOf="@id/authorUsername"
             tools:src="@tools:sample/backgrounds/scenic" />
 
+        <!-- Location with Icon -->
         <TextView
-            android:id="@+id/postLocation"
+            android:id="@+id/locationLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:text="Location:"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#555555"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/postImage" />
+
+        <TextView
+            android:id="@+id/postLocation"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:drawablePadding="4dp"
             android:gravity="center_vertical"
             android:textSize="16sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/postImage"
+            android:textColor="#000000"
+            app:layout_constraintStart_toEndOf="@id/locationLabel"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/locationLabel"
             tools:text="Paris, France" />
 
+        <!-- Coordinates -->
         <TextView
-            android:id="@+id/postDate"
+            android:id="@+id/coordinatesLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:text="Coordinates:"
             android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#555555"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/postLocation"
-            tools:text="June 15, 2023" />
+            app:layout_constraintTop_toBottomOf="@id/postLocation" />
+
+        <TextView
+            android:id="@+id/postCoordinates"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textSize="14sp"
+            android:textColor="#000000"
+            app:layout_constraintStart_toEndOf="@id/coordinatesLabel"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/coordinatesLabel"
+            tools:text="Lat: 48.8566, Long: 2.3522" />
+
+        <!-- Date Posted -->
+        <TextView
+            android:id="@+id/dateLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Date Posted:"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#555555"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/postCoordinates" />
+
+        <TextView
+            android:id="@+id/postDate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textSize="14sp"
+            android:textColor="#000000"
+            app:layout_constraintStart_toEndOf="@id/dateLabel"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/dateLabel"
+            tools:text="June 15, a2023" />
+
+        <!-- Description -->
+        <TextView
+            android:id="@+id/descriptionLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Description"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#555555"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/postDate" />
 
         <TextView
             android:id="@+id/postDescription"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:lineSpacingExtra="4dp"
             android:textSize="16sp"
+            android:textColor="#000000"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/postDate"
+            app:layout_constraintTop_toBottomOf="@id/descriptionLabel"
             tools:text="This is a detailed description of my amazing travel experience. I visited many beautiful places and had a wonderful time." />
 
+        <!-- View on Map Button -->
+        <Button
+            android:id="@+id/viewOnMapButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="View on Map"
+            android:drawableStart="@android:drawable/ic_dialog_map"
+            android:drawablePadding="8dp"
+            android:padding="12dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/postDescription" />
+
+        <!-- Edit/Delete Buttons -->
         <Button
             android:id="@+id/editButton"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Edit"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="Edit Post"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/postDescription" />
+            app:layout_constraintEnd_toStartOf="@id/deleteButton"
+            app:layout_constraintTop_toBottomOf="@id/viewOnMapButton" />
 
         <Button
             android:id="@+id/deleteButton"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="8dp"
             android:backgroundTint="#F44336"
-            android:text="Delete"
+            android:text="Delete Post"
             app:layout_constraintStart_toEndOf="@id/editButton"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/editButton" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
