@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.travelog.databinding.FragmentRegisterBinding
+import com.example.travelog.ui.viewmodel.AuthViewModel
 
 class RegisterFragment : Fragment() {
 
@@ -54,17 +55,9 @@ class RegisterFragment : Fragment() {
             binding.loadingProgress.visibility = View.GONE
             when (state) {
                 is AuthViewModel.AuthState.Success -> {
-                    // Show success message
                     Toast.makeText(requireContext(), "Registration successful! Please login.",
                         Toast.LENGTH_SHORT).show()
-
-                    // Navigate back to login screen
                     findNavController().popBackStack()
-
-                    // Alternative: Create a new action in nav_graph.xml named action_registerFragment_to_loginFragment
-                    // findNavController().navigate(
-                    //     RegisterFragmentDirections.actionRegisterFragmentToLoginFragment()
-                    // )
                 }
                 is AuthViewModel.AuthState.Error -> {
                     Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()

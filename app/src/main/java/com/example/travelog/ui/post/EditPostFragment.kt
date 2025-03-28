@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
+import com.example.travelog.R
 import com.example.travelog.databinding.FragmentEditPostBinding
 import com.example.travelog.ui.viewmodel.PostViewModel
 

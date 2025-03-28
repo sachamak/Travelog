@@ -19,11 +19,10 @@ import androidx.navigation.fragment.findNavController
 import com.example.travelog.R
 import com.example.travelog.databinding.FragmentCreatePostBinding
 import com.example.travelog.ui.viewmodel.PostViewModel
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class CreatePostFragment : Fragment() {
 
@@ -34,6 +33,7 @@ class CreatePostFragment : Fragment() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var currentLatitude: Double = 0.0
     private var currentLongitude: Double = 0.0
+    private val TAG = "CreatePostFragment"
 
     private val getContent = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -65,6 +65,8 @@ class CreatePostFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d(TAG, "CreatePostFragment: onViewCreated")
+
         viewModel = ViewModelProvider(
             requireActivity(),
             PostViewModel.Factory(requireActivity().application)
@@ -72,6 +74,10 @@ class CreatePostFragment : Fragment() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         checkUserAuthentication()
+
+        binding.locationEditText.setText("Use the Get Location button →")
+        binding.locationEditText.isFocusable = false
+        binding.locationEditText.isClickable = false
 
         setupClickListeners()
         setupObservers()
@@ -119,11 +125,19 @@ class CreatePostFragment : Fragment() {
 
         viewModel.navigateBack.observe(viewLifecycleOwner) { shouldNavigate ->
             if (shouldNavigate) {
+                Log.d(TAG, "Received navigation signal, navigating to feed")
                 try {
                     findNavController().navigate(R.id.action_createPostFragment_to_feedFragment)
+                    Log.d(TAG, "Successfully navigated to feed")
                 } catch (e: Exception) {
-                    Log.e("CreatePostFragment", "Navigation error: ${e.message}")
-                    findNavController().popBackStack()
+                    Log.e(TAG, "Navigation error: ${e.message}")
+                    try {
+                        findNavController().navigate(R.id.feedFragment)
+                        Log.d(TAG, "Used fallback navigation to feed")
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Fallback navigation also failed: ${e.message}")
+                        findNavController().popBackStack()
+                    }
                 }
             }
         }
@@ -138,6 +152,7 @@ class CreatePostFragment : Fragment() {
     private fun validateInputs(): Boolean {
         val title = binding.titleEditText.text.toString().trim()
         val description = binding.descriptionEditText.text.toString().trim()
+        val location = binding.locationEditText.text.toString().trim()
 
         when {
             title.isEmpty() -> {
@@ -148,9 +163,18 @@ class CreatePostFragment : Fragment() {
                 binding.descriptionLayout.error = "Description is required"
                 return false
             }
+            location.isEmpty() -> {
+                Toast.makeText(requireContext(), "Please set your location using the Get Location button", Toast.LENGTH_SHORT).show()
+                return false
+            }
+            currentLatitude == 0.0 && currentLongitude == 0.0 -> {
+                Toast.makeText(requireContext(), "Please set a valid location", Toast.LENGTH_SHORT).show()
+                return false
+            }
             else -> {
                 binding.titleLayout.error = null
                 binding.descriptionLayout.error = null
+                binding.locationLayout.error = null
                 return true
             }
         }
@@ -192,48 +216,57 @@ class CreatePostFragment : Fragment() {
         )
     }
 
-    private fun checkGooglePlayServices(): Boolean {
-        val googleApiAvailability = GoogleApiAvailability.getInstance()
-        val resultCode = googleApiAvailability.isGooglePlayServicesAvailable(requireContext())
-        return if (resultCode != ConnectionResult.SUCCESS) {
-            if (googleApiAvailability.isUserResolvableError(resultCode)) {
-                googleApiAvailability.getErrorDialog(requireActivity(), resultCode, 2404)?.show()
-            } else {
-                Log.e("CreatePostFragment", "This device is not supported.")
-                Toast.makeText(requireContext(), "Google Play Services not available", Toast.LENGTH_SHORT).show()
-            }
-            false
-        } else {
-            true
-        }
-    }
-
     private fun getCurrentLocation() {
-        if (checkGooglePlayServices()) {
-            try {
-                binding.locationProgressBar.visibility = View.VISIBLE
-                val locationTask = fusedLocationClient.lastLocation
-                locationTask.addOnSuccessListener { location ->
-                    binding.locationProgressBar.visibility = View.GONE
-                    if (location != null) {
-                        currentLatitude = location.latitude
-                        currentLongitude = location.longitude
+        try {
+            binding.locationProgressBar.visibility = View.VISIBLE
+            binding.getLocationButton.visibility = View.INVISIBLE
+            val locationTask = fusedLocationClient.lastLocation
+            locationTask.addOnSuccessListener { location ->
+                binding.locationProgressBar.visibility = View.GONE
+                binding.getLocationButton.visibility = View.VISIBLE
 
+                if (location != null) {
+                    currentLatitude = location.latitude
+                    currentLongitude = location.longitude
+
+                    val geocoder = android.location.Geocoder(requireContext(), java.util.Locale.getDefault())
+                    try {
+                        val addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+                        if (addresses != null && addresses.isNotEmpty()) {
+                            val address = addresses[0]
+                            val locationText = if (address.locality != null) {
+                                "${address.locality}, ${address.countryName}"
+                            } else if (address.adminArea != null) {
+                                "${address.adminArea}, ${address.countryName}"
+                            } else {
+                                "Lat: ${String.format("%.4f", currentLatitude)}, Long: ${String.format("%.4f", currentLongitude)}"
+                            }
+                            binding.locationEditText.setText(locationText)
+                        } else {
+                            val locationText = "Lat: ${String.format("%.4f", currentLatitude)}, Long: ${String.format("%.4f", currentLongitude)}"
+                            binding.locationEditText.setText(locationText)
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error during geocoding: ${e.message}")
                         val locationText = "Lat: ${String.format("%.4f", currentLatitude)}, Long: ${String.format("%.4f", currentLongitude)}"
                         binding.locationEditText.setText(locationText)
-
-                        Toast.makeText(requireContext(), "Location updated", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(requireContext(), "Unable to get location. Please try again.", Toast.LENGTH_SHORT).show()
                     }
-                }.addOnFailureListener {
-                    binding.locationProgressBar.visibility = View.GONE
-                    Toast.makeText(requireContext(), "Failed to get location: ${it.message}", Toast.LENGTH_SHORT).show()
+
+                    Toast.makeText(requireContext(), "Location updated", Toast.LENGTH_SHORT).show()
+                    binding.locationLayout.error = null
+                } else {
+                    Toast.makeText(requireContext(), "Unable to get location. Please try again.", Toast.LENGTH_SHORT).show()
+                    binding.locationEditText.setText("Use the Get Location button →")
                 }
-            } catch (e: SecurityException) {
+            }.addOnFailureListener {
                 binding.locationProgressBar.visibility = View.GONE
-                Toast.makeText(requireContext(), R.string.location_permission_required, Toast.LENGTH_SHORT).show()
+                binding.getLocationButton.visibility = View.VISIBLE
+                Toast.makeText(requireContext(), "Failed to get location: ${it.message}", Toast.LENGTH_SHORT).show()
             }
+        } catch (e: SecurityException) {
+            binding.locationProgressBar.visibility = View.GONE
+            binding.getLocationButton.visibility = View.VISIBLE
+            Toast.makeText(requireContext(), R.string.location_permission_required, Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -11,7 +11,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.example.travelog.R
 import com.example.travelog.data.local.AppDatabase
@@ -20,7 +19,7 @@ import com.example.travelog.data.local.entity.UserEntity
 import com.example.travelog.data.repository.FirebaseRepository
 import com.example.travelog.databinding.FragmentProfileBinding
 import com.example.travelog.model.TravelPost
-import com.example.travelog.ui.auth.AuthViewModel
+import com.example.travelog.ui.viewmodel.AuthViewModel
 import com.example.travelog.ui.feed.TravelPostsAdapter
 import com.example.travelog.ui.viewmodel.ProfileViewModel
 import com.google.firebase.auth.FirebaseAuth

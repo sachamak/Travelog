@@ -1,6 +1,7 @@
 package com.example.travelog.ui.auth
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.travelog.R
 import com.example.travelog.databinding.FragmentLoginBinding
+import com.example.travelog.ui.viewmodel.AuthViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 class LoginFragment : Fragment() {
 
@@ -17,6 +20,7 @@ class LoginFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var viewModel: AuthViewModel
     private val TAG = "LoginFragment"
+    private var isInitialAuthCheck = true
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,8 +34,40 @@ class LoginFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(requireActivity())[AuthViewModel::class.java]
 
+        Log.d(TAG, "LoginFragment: onViewCreated")
+
         setupClickListeners()
         observeAuthenticationState()
+
+        val navBackStackEntry = findNavController().previousBackStackEntry
+        if (navBackStackEntry != null) {
+            Log.d(TAG, "Previous destination: ${navBackStackEntry.destination.label}")
+
+            if (navBackStackEntry.destination.id != R.id.registerFragment) {
+                Log.d(TAG, "Likely returned after logout")
+                viewModel.resetAuthState()
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "LoginFragment: onResume")
+
+        if (isInitialAuthCheck) {
+            checkCurrentUser()
+            isInitialAuthCheck = false
+        }
+    }
+
+    private fun checkCurrentUser() {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser != null) {
+            Log.d(TAG, "User already logged in (${currentUser.uid}), navigating to feed")
+            findNavController().navigate(R.id.action_loginFragment_to_feedFragment)
+        } else {
+            Log.d(TAG, "No user logged in, staying at login screen")
+        }
     }
 
     private fun setupClickListeners() {
@@ -60,22 +96,27 @@ class LoginFragment : Fragment() {
                         binding.loadingProgress.visibility = View.GONE
                         Toast.makeText(
                             requireContext(),
-                            "Login successful!",
+                            "Connection successful",
                             Toast.LENGTH_SHORT
                         ).show()
-                        findNavController().navigate(R.id.action_loginFragment_to_feedFragment)
 
-
-
+                        if (isAdded && isResumed) {
+                            findNavController().navigate(R.id.action_loginFragment_to_feedFragment)
+                            Log.d(TAG, "Navigating to feed after successful login")
+                        }
                     }
                     is AuthViewModel.AuthState.Error -> {
                         binding.loadingProgress.visibility = View.GONE
                         Toast.makeText(
                             requireContext(),
-                            "Erreur: ${state.message}",
+                            "Error: ${state.message}",
                             Toast.LENGTH_LONG
                         ).show()
-
+                        Log.e(TAG, "Authentication Error: ${state.message}")
+                    }
+                    is AuthViewModel.AuthState.Idle -> {
+                        binding.loadingProgress.visibility = View.GONE
+                        Log.d(TAG, "Auth state is idle")
                     }
                     else -> {
                         binding.loadingProgress.visibility = View.GONE
@@ -83,9 +124,10 @@ class LoginFragment : Fragment() {
                 }
             }
         } catch (e: Exception) {
+            Log.e(TAG, "Navigating to feed after successful login\n", e)
             Toast.makeText(
                 requireContext(),
-                "error: ${e.message}",
+                "An unexpected error has occurred: ${e.message}",
                 Toast.LENGTH_SHORT
             ).show()
         }
