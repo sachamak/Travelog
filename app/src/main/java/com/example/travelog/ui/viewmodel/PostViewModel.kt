@@ -494,6 +494,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun resetNavigationState(){
+        _navigateBack.value=false
+    }
+
     override fun onCleared() {
         super.onCleared()
         postsListenerRegistration?.remove()

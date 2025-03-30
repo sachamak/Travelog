@@ -128,6 +128,7 @@ class CreatePostFragment : Fragment() {
                 Log.d(TAG, "Received navigation signal, navigating to feed")
                 try {
                     findNavController().navigate(R.id.action_createPostFragment_to_feedFragment)
+                    viewModel.resetNavigationState()
                     Log.d(TAG, "Successfully navigated to feed")
                 } catch (e: Exception) {
                     Log.e(TAG, "Navigation error: ${e.message}")
