@@ -37,6 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginEnd="8dp"
+            android:backgroundTint="@color/app_blue"
             android:text="Publish" />
     </androidx.appcompat.widget.Toolbar>
 
@@ -120,6 +121,7 @@
                 android:layout_height="wrap_content"
                 android:text="Get Location"
                 android:layout_marginStart="8dp"
+                android:backgroundTint="@color/app_blue"
                 android:drawableStart="@android:drawable/ic_menu_mylocation"
                 android:drawablePadding="4dp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -142,6 +144,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="Select Image"
+                android:backgroundTint="@color/app_blue"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/locationLayout" />
