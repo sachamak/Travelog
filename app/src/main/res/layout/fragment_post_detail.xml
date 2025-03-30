@@ -197,6 +197,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="View on Map"
+            android:backgroundTint="@color/app_blue"
             android:drawableStart="@android:drawable/ic_dialog_map"
             android:drawablePadding="8dp"
             android:padding="12dp"
@@ -212,6 +213,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:text="Edit Post"
+            android:backgroundTint="@color/app_blue"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/deleteButton"
             app:layout_constraintTop_toBottomOf="@id/viewOnMapButton" />
